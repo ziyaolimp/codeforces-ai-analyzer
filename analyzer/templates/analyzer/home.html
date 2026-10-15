@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>Codeforces Analyzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; }
+        .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input[type="text"] { width: 70%; padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+        .error { color: red; margin-top: 15px; }
+        ul { background: #f8f9fa; padding: 15px 30px; border-radius: 5px; list-style-type: square; }
+        .ai-box { background-color: #eef6ff; padding: 18px; border-left: 5px solid #007bff; border-radius: 6px; white-space: pre-line; line-height: 1.6; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Codeforces Weakness Analyzer</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="handle" placeholder="Codeforces Handle yazın (məs: tourist)" required>
+            <button type="submit">Analiz Et</button>
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if handle %}
+            <h3>İstifadəçi: {{ handle }}</h3>
+            <h4>Səhv Edilən Teqlər və Sayı:</h4>
+            <ul>
+                {% for tag, count in wrong_tags.items %}
+                    <li><strong>{{ tag }}</strong>: {{ count }} dəfə səhv submission</li>
+                {% empty %}
+                    <li>Səhv submission tapılmadı və ya bütün məsələlər düzgündür!</li>
+                {% endfor %}
+            </ul>
+            
+
+
+            <h4>Dogru Edilən Teqlər və Sayı:</h4>
+            <ul>
+                {% for tag, count in good_tags.items %}
+                    <li><strong>{{ tag }}</strong>: {{ count }} dəfə dogru submission</li>
+                {% empty %}
+                    <li>dogru submission tapılmadı və ya bütün məsələlər sehvdir!</li>
+                {% endfor %}
+            </ul>
+            
+
+
+
+
+            {% if ai_roadmap %}
+                <!-- AI Roadmap Bloku (əvvəl yazdığımız) -->
+                <div style="background-color: #f8f9fa; border-left: 5px solid #4f46e5; padding: 20px; border-radius: 8px; margin-top: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <h3 style="color: #4f46e5; margin-top: 0; margin-bottom: 15px;">🤖 AI Məşqçinin Fərdi Tədris Planı</h3>
+                    <div style="color: #333333; font-size: 16px; line-height: 1.6;">
+                        {{ ai_roadmap|linebreaks }}
+                    </div>
+                </div>
+
+                <!-- Yeni: AI Məşqçi ilə Söhbət / Chat Bloku -->
+                <div style="background-color: #ffffff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                    <h4 style="color: #1f2937; margin-top: 0;">💬 Məşqçiyə Sual Ver</h4>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" name="user_question" placeholder="Məsələn: DP məsələlərini necə sürətli həll edə bilərəm?" required
+                                style="flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 15px;">
+                            <button type="submit" name="chat_submit" 
+                                    style="background-color: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                                Göndər
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Əgər məşqçi cavab veribsə, burada göstəririk -->
+                    {% if chat_answer %}
+                        <div style="margin-top: 15px; padding: 15px; background-color: #eef2ff; border-radius: 6px; border-left: 4px solid #6366f1;">
+                            <p style="margin: 0 0 5px 0; font-weight: bold; color: #4f46e5;">Sənin sualın: {{ user_question }}</p>
+                            <div style="color: #1f2937; line-height: 1.5;">
+                                {{ chat_answer|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</body> 
+</html>
